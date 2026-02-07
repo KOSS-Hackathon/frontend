@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:menurecommend/screen/result_screen.dart';
 import 'package:menurecommend/services/api_service.dart';
+import 'package:menurecommend/widgets/custom_scaffold.dart';
 
 class QuestionScreen extends StatefulWidget {
   const QuestionScreen({super.key});
@@ -76,7 +77,6 @@ class _QuestionScreenState extends State<QuestionScreen> {
         step++;
       });
     } else {
-      // 마지막 질문 - API 호출
       setState(() {
         isLoading = true;
       });
@@ -100,10 +100,11 @@ class _QuestionScreenState extends State<QuestionScreen> {
           ),
         );
       } else {
-        // API 실패 시 에러 메시지
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('추천을 가져오는데 실패했습니다. 다시 시도해주세요.')),
         );
+
+        Navigator.of(context).popUntil((route) => route.isFirst);
       }
     }
   }
@@ -112,51 +113,105 @@ class _QuestionScreenState extends State<QuestionScreen> {
   Widget build(BuildContext context) {
     final current = questions[step];
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('질문 ${step + 1}/${questions.length}'),
-      ),
+    return CustomScaffold(
       body: isLoading
           ? const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 16),
-                  Text('메뉴를 추천하는 중...'),
-                ],
-              ),
-            )
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(height: 16),
+            Text('메뉴를 추천하는 중...'),
+          ],
+        ),
+      )
           : Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    current['title'],
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  ...current['options'].map<Widget>((option) {
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: const Size.fromHeight(48),
-                          backgroundColor: Color(0xFF5B8DEF),
-                          foregroundColor: Color(0xFFFFFFFF),
-                        ),
-                        onPressed: () => selectOption(option['value']),
-                        child: Text(option['label']),
-                      ),
-                    );
-                  }).toList(),
-                ],
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Text(
+                '${step + 1}/${questions.length}',
+                style: TextStyle(
+                  color: Color(0xFFFFFFFF),
+                ),
               ),
             ),
+
+            SizedBox(
+              height: 150,
+            ),
+
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 30),
+                decoration: const BoxDecoration(
+                  color: Color(0xFFE9EEFF),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(50),
+                    topRight: Radius.circular(50),
+                    bottomLeft: Radius.circular(50),
+                    bottomRight: Radius.circular(5),
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      current['title'],
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            Align(
+              alignment: Alignment.centerRight,
+              child: Image.asset('assets/question.png', height: 200),
+            ),
+
+            const SizedBox(height: 24),
+
+            ...current['options'].map<Widget>((option) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: GestureDetector(
+                  onTap: () => selectOption(option['value']),
+                  child: Container(
+                    height: 48,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Color(0xFFFF9A56),
+                          Color(0xFFFF6B35),
+                        ],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      ),
+                      borderRadius: BorderRadius.circular(48),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      option['label'],
+                      style: TextStyle(
+                        color: Color(0xFF000000),
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                )
+              );
+            }).toList(),
+          ],
+        ),
+      ),
     );
   }
 }
