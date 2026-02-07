@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:menurecommend/screen/start_screen.dart';
 import 'package:menurecommend/services/api_service.dart';
 
-import 'package:menurecommend/screen/result_screen.dart'; // Import ResultScreen
+import 'package:menurecommend/screen/result_screen.dart';
+import 'package:menurecommend/widgets/custom_scaffold.dart';
 
 class AddquestionScreen extends StatefulWidget {
   final String menuName;
   final Map<String, dynamic> originalChoices;
-  
+
   const AddquestionScreen({
-    super.key, 
+    super.key,
     required this.menuName,
     required this.originalChoices,
   });
@@ -45,16 +45,14 @@ class _AddquestionScreenState extends State<AddquestionScreen> {
     });
 
     if (result != null) {
-      // 재추천 결과를 받으면 결과 화면으로 이동
-      // 기존 선택값(input)을 포함시켜서 다음에도 재추천 가능하게 함
       final newMenuData = Map<String, dynamic>.from(result);
       newMenuData['input'] = widget.originalChoices;
 
       if (!mounted) return;
-      
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('새로운 메뉴를 추천해드릴게요! 🍽️')),
-      );
+
+      //ScaffoldMessenger.of(context).showSnackBar(
+        //const SnackBar(content: Text('새로운 메뉴를 추천해드릴게요! 🍽️')),
+      //);
 
       Navigator.pushReplacement(
         context,
@@ -70,152 +68,154 @@ class _AddquestionScreenState extends State<AddquestionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return CustomScaffold(
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 30),
-              child: Column(
-                children: [
-                  const SizedBox(height: 40),
-                  
-                  // 말풍선
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 30),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFE9EEFF),
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(50),
-                          topRight: Radius.circular(50),
-                          bottomLeft: Radius.circular(50),
-                          bottomRight: Radius.circular(5),
-                        ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            '아쉬웠구나 😢',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF2B2B2B),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            '"${widget.menuName}"이(가) 마음에 안 들었어?',
-                            style: const TextStyle(
-                              fontSize: 14,
-                              color: Color(0xFF666666),
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          const Text(
-                            '어떤 점이 아쉬웠는지 알려줘!',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Color(0xFF666666),
-                            ),
-                          ),
-                        ],
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 30),
+            child: Column(
+              children: [
+                const SizedBox(height: 200),
+
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 30),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFE9EEFF),
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(50),
+                        topRight: Radius.circular(50),
+                        bottomLeft: Radius.circular(50),
+                        bottomRight: Radius.circular(5),
                       ),
                     ),
-                  ),
-                  
-                  // 캐릭터 이미지
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: Image.asset('assets/add.png', height: 200),
-                  ),
-                  
-                  const SizedBox(height: 30),
-                  
-                  // 입력 필드
-                  TextFormField(
-                    controller: _textController,
-                    maxLines: 4,
-                    decoration: InputDecoration(
-                      hintText: '예: 오늘은 국물 있는 음식이 더 먹고 싶었어요',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(color: Color(0xFF5B8DEF), width: 2),
-                      ),
-                      contentPadding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          '아쉬웠구나 😢',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF2B2B2B),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          '"${widget.menuName}"이(가) 마음에 안 들었어?',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Color(0xFF666666),
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        const Text(
+                          '어떤 점이 아쉬웠는지 알려줘!',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Color(0xFF666666),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  
-                  const SizedBox(height: 30),
-                  
-                  // 버튼들
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // 제출 버튼
-                      GestureDetector(
-                        onTap: isSubmitting ? null : _submitFeedback,
-                        child: Container(
-                          height: 50,
-                          width: 140,
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            color: isSubmitting 
-                                ? Colors.grey 
-                                : const Color(0xFF5B8DEF),
-                            borderRadius: BorderRadius.circular(50),
-                          ),
-                          child: isSubmitting
-                              ? const SizedBox(
-                                  width: 24,
-                                  height: 24,
-                                  child: CircularProgressIndicator(
-                                    color: Colors.white,
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : const Text(
-                                  '피드백 제출',
-                                  style: TextStyle(
-                                    color: Color(0xFFFFFFFF),
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      // 건너뛰기 버튼
-                      GestureDetector(
-                        onTap: () => _submitFeedback(skip: true),
-                        child: Container(
-                          height: 50,
-                          width: 140,
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFE5E7EB),
-                            borderRadius: BorderRadius.circular(50),
-                          ),
-                          child: const Text(
-                            '건너뛰기',
-                            style: TextStyle(
-                              color: Color(0xFF666666),
-                              fontSize: 16,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
+                ),
+
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Image.asset('assets/add.png', height: 200),
+                ),
+
+                const SizedBox(height: 30),
+
+                TextFormField(
+                  controller: _textController,
+                  maxLines: 4,
+                  decoration: InputDecoration(
+                    hintText: '예: 오늘은 국물 있는 음식이 더 먹고 싶었어요',
+                    hintStyle: TextStyle(
+                      color: Color(0xFF000000),
+                    ),
+                    filled: true,
+                    fillColor: Color(0xFFB04CB6).withOpacity(0.5),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: const BorderSide(color: Color(0xFF5B8DEF), width: 2),
+                    ),
+                    contentPadding: const EdgeInsets.all(16),
                   ),
-                  
-                  const SizedBox(height: 40),
-                ],
-              ),
+                ),
+
+                const SizedBox(height: 30),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    GestureDetector(
+                      onTap: isSubmitting ? null : _submitFeedback,
+                      child: Container(
+                        height: 50,
+                        width: 140,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              Color(0xFFFF9A56),
+                              Color(0xFFFF6B35),
+                            ],
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                          ),
+                          borderRadius: BorderRadius.circular(50),
+                        ),
+                        child: isSubmitting
+                            ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                            : const Text(
+                          '피드백 제출',
+                          style: TextStyle(
+                            color: Color(0xFF000000),
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    GestureDetector(
+                      onTap: () => _submitFeedback(skip: true),
+                      child: Container(
+                        height: 50,
+                        width: 140,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE5E7EB),
+                          borderRadius: BorderRadius.circular(50),
+                        ),
+                        child: const Text(
+                          '건너뛰기',
+                          style: TextStyle(
+                            color: Color(0xFF666666),
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 40),
+              ],
             ),
           ),
         ),
