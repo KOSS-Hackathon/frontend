@@ -2,17 +2,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  // TODO: 배포 시 실제 서버 URL로 변경
-  // Android 에뮬레이터: 10.0.2.2:3000
-  // iOS 시뮬레이터 / 웹: localhost:3000
-  // 실제 기기: 서버 IP 또는 도메인
-  static const String baseUrl = 'http://localhost:3000';
+  static const String baseUrl = 'https://backend-qv4p.onrender.com';
 
-  /// 메뉴 추천 API 호출
-  /// category: korean, japanese, chinese, western, etc
-  /// taste: spicy, greasy, plain, etc
-  /// methods: fried, grilled, soup, etc
-  /// temp: hot, warm, cold
   static Future<Map<String, dynamic>?> getRecommendation({
     required String category,
     required String taste,
@@ -44,12 +35,11 @@ class ApiService {
     }
   }
 
-  /// 장소 검색 API 호출 (네이버 로컬 검색)
   static Future<List<Map<String, dynamic>>> searchPlaces(String query) async {
     try {
       final url = '$baseUrl/places?query=${Uri.encodeComponent(query)}';
       print('🔍 Calling API: $url');
-      
+
       final response = await http.get(
         Uri.parse(url),
         headers: {'Content-Type': 'application/json; charset=UTF-8'},
@@ -73,7 +63,6 @@ class ApiService {
     }
   }
 
-  /// 피드백 제출 및 재추천 요청
   static Future<Map<String, dynamic>?> submitFeedback({
     required String menuName,
     required bool isLiked,
