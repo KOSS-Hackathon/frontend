@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:menurecommend/screen/result_screen.dart';
+import 'package:menurecommend/services/api_service.dart';
 
 class QuestionScreen extends StatefulWidget {
   const QuestionScreen({super.key});
@@ -15,6 +16,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
   String? temp;
 
   int step = 0;
+  bool isLoading = false;
 
   final List<Map<String, dynamic>> questions = [
     {
@@ -59,34 +61,51 @@ class _QuestionScreenState extends State<QuestionScreen> {
     },
   ];
 
-  void selectOption(String value) {
-    setState(() {
-      final key = questions[step]['key'];
+  void selectOption(String value) async {
+    final key = questions[step]['key'];
 
+    setState(() {
       if (key == 'category') category = value;
       if (key == 'taste') taste = value;
       if (key == 'method') method = value;
       if (key == 'temp') temp = value;
+    });
 
-      if (step < questions.length - 1) {
+    if (step < questions.length - 1) {
+      setState(() {
         step++;
-      } else {
-        // 🔽 나중에 여기서 API 호출
-        debugPrint({
-          'category': category,
-          'taste': taste,
-          'method': method,
-          'temp': temp,
-        }.toString());
+      });
+    } else {
+      // 마지막 질문 - API 호출
+      setState(() {
+        isLoading = true;
+      });
 
+      final result = await ApiService.getRecommendation(
+        category: category!,
+        taste: taste!,
+        methods: method!,
+        temp: temp!,
+      );
+
+      setState(() {
+        isLoading = false;
+      });
+
+      if (result != null) {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => ResultScreen(),
+            builder: (context) => ResultScreen(menuData: result),
           ),
         );
+      } else {
+        // API 실패 시 에러 메시지
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('추천을 가져오는데 실패했습니다. 다시 시도해주세요.')),
+        );
       }
-    });
+    }
   }
 
   @override
@@ -97,37 +116,47 @@ class _QuestionScreenState extends State<QuestionScreen> {
       appBar: AppBar(
         title: Text('질문 ${step + 1}/${questions.length}'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              current['title'],
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
+      body: isLoading
+          ? const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text('메뉴를 추천하는 중...'),
+                ],
+              ),
+            )
+          : Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    current['title'],
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  ...current['options'].map<Widget>((option) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: const Size.fromHeight(48),
+                          backgroundColor: Color(0xFF5B8DEF),
+                          foregroundColor: Color(0xFFFFFFFF),
+                        ),
+                        onPressed: () => selectOption(option['value']),
+                        child: Text(option['label']),
+                      ),
+                    );
+                  }).toList(),
+                ],
               ),
             ),
-            const SizedBox(height: 24),
-
-            ...current['options'].map<Widget>((option) {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size.fromHeight(48),
-                    backgroundColor: Color(0xFF5B8DEF),
-                    foregroundColor: Color(0xFFFFFFFF)
-                  ),
-                  onPressed: () => selectOption(option['value']),
-                  child: Text(option['label']),
-                ),
-              );
-            }).toList(),
-          ],
-        ),
-      ),
     );
   }
 }
