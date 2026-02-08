@@ -30,6 +30,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  http: ^1.1.0
+  url_launcher: ^6.2.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -63,6 +65,11 @@ flutter:
   #   - images/a_dot_ham.jpeg
   assets:
     - assets/
+
+  fonts:
+    - family: Rakkas
+      fonts:
+      - asset: assets/fonts/Rakkas-Regular.ttf
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
