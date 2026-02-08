@@ -135,7 +135,7 @@ class _AddquestionScreenState extends State<AddquestionScreen> {
                   decoration: InputDecoration(
                     hintText: '예: 오늘은 국물 있는 음식이 더 먹고 싶었어요',
                     hintStyle: TextStyle(
-                      color: Color(0xFF000000),
+                      color: Color(0xFFFFFFFF),
                     ),
                     filled: true,
                     fillColor: Color(0xFFB04CB6).withOpacity(0.5),
